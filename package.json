@@ -1,0 +1,27 @@
+{
+  "name": "snowpack-plugin-hmr-inject",
+  "version": "0.1.0",
+  "description": "Snowpack plugin that auto inject code so that any module get their code hot-swapped while keeping isntance data.",
+  "keywords": [
+    "hmr",
+    "snowpack",
+    "plugin"
+  ],
+  "author": "wighawag@gmail.com",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "dependencies": {
+    "minimatch": "^3.0.4"
+  },
+  "devDependencies": {
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^14.14.21",
+    "snowpack": "^3.0.11",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  }
+}
