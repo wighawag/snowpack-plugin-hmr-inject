@@ -6,7 +6,7 @@ type Filter = (transformOptions: PluginTransformOptions) => boolean;
 
 type HMRPrototypePluginOptions = {
   filter?: Filter;
-  devOnly?: boolean
+  devOnly?: boolean;
 }
 
 export function filterFiles({includes, excludes}: {
@@ -36,12 +36,13 @@ export function filterFiles({includes, excludes}: {
 
 export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePluginOptions): SnowpackPlugin {
   return {
-    name: 'hmr-prototype-snowpack-plugin',
+    name: 'snowpack-plugin-hmr-inject',
     async transform(transformOptions: PluginTransformOptions): Promise<PluginTransformResult | string | null | undefined | void> {
-      if (!transformOptions.isHmrEnabled) {
-        return;
-      }
-      if (transformOptions.isDev && options.devOnly === undefined || options.devOnly) {
+      // if (!transformOptions.isHmrEnabled) { // seems to be always false
+      //   console.log('no transform');
+      //   return;
+      // }
+      if (!transformOptions.isDev && (options.devOnly === undefined || options.devOnly)) {
         return;
       }
       let {id, contents} = transformOptions;
@@ -60,6 +61,9 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
         // tackle base class automatically somehow ?
         // or at least provide helpers ?
         if (contents.indexOf("import.meta.hot") === -1) {
+          if ((options as any).debug) {
+            console.log(`injecting HMR code in ${id}`);
+          }
           return contents + `
 (async () => {
   if (import.meta.hot) {
