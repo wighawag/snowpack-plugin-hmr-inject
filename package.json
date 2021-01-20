@@ -1,6 +1,6 @@
 {
   "name": "snowpack-plugin-hmr-inject",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Snowpack plugin that auto inject code so that any module get their code hot-swapped while keeping isntance data.",
   "keywords": [
     "hmr",
