@@ -32,6 +32,12 @@ function default_1(snowpackConfig, options) {
     return {
         name: 'hmr-prototype-snowpack-plugin',
         async transform(transformOptions) {
+            if (!transformOptions.isHmrEnabled) {
+                return;
+            }
+            if (transformOptions.isDev && options.devOnly === undefined || options.devOnly) {
+                return;
+            }
             let { id, contents } = transformOptions;
             if (id.endsWith('.js')) {
                 if (options.filter) {
@@ -57,9 +63,15 @@ function default_1(snowpackConfig, options) {
         const newValue = module[field];
         const previousValue = previousModule[field];
         if (previousValue) {
-          if (previousValue.__hmr__) {
+          let __hmr__;
+          if (newValue.__hmr__) {
+            __hmr__ = newValue.__hmr__.bind(previousValue);
+          } else if (previousValue.__hmr__) {
+            __hmr__ = previousValue.__hmr__;
+          }
+          if (__hmr__) {
             try {
-              previousValue.__hmr__({previousModule, module, newValue});
+              __hmr__({previousModule, module, newValue});
             } catch (e) {
               import.meta.hot.invalidate();
             }

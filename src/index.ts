@@ -6,6 +6,7 @@ type Filter = (transformOptions: PluginTransformOptions) => boolean;
 
 type HMRPrototypePluginOptions = {
   filter?: Filter;
+  devOnly?: boolean
 }
 
 export function filterFiles({includes, excludes}: {
@@ -37,6 +38,12 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
   return {
     name: 'hmr-prototype-snowpack-plugin',
     async transform(transformOptions: PluginTransformOptions): Promise<PluginTransformResult | string | null | undefined | void> {
+      if (!transformOptions.isHmrEnabled) {
+        return;
+      }
+      if (transformOptions.isDev && options.devOnly === undefined || options.devOnly) {
+        return;
+      }
       let {id, contents} = transformOptions;
       if (id.endsWith('.js')) {
         if (options.filter) {
@@ -62,9 +69,15 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
         const newValue = module[field];
         const previousValue = previousModule[field];
         if (previousValue) {
-          if (previousValue.__hmr__) {
+          let __hmr__;
+          if (newValue.__hmr__) {
+            __hmr__ = newValue.__hmr__.bind(previousValue);
+          } else if (previousValue.__hmr__) {
+            __hmr__ = previousValue.__hmr__;
+          }
+          if (__hmr__) {
             try {
-              previousValue.__hmr__({previousModule, module, newValue});
+              __hmr__({previousModule, module, newValue});
             } catch (e) {
               import.meta.hot.invalidate();
             }
