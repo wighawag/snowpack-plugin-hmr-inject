@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.filterFiles = void 0;
 const path_1 = __importDefault(require("path"));
+const fs_extra_1 = __importDefault(require("fs-extra"));
 const minimatch_1 = __importDefault(require("minimatch"));
 function filterFiles({ includes, excludes }) {
     const cwd = process.cwd();
@@ -58,7 +59,7 @@ function default_1(snowpackConfig, options) {
                     if (options.debug) {
                         console.log(`injecting HMR code in ${id}`);
                     }
-                    return contents + `
+                    const newContent = contents + `
 (async () => {
   if (import.meta.hot) {
     const previousModule = await import(import.meta.url);
@@ -91,6 +92,13 @@ function default_1(snowpackConfig, options) {
   }
 })();
 `;
+                    if (options.writeToFolder) {
+                        const relpath = path_1.default.relative(snowpackConfig.root, id);
+                        const filepath = path_1.default.join(options.writeToFolder, relpath);
+                        fs_extra_1.default.ensureDirSync(path_1.default.dirname(filepath));
+                        fs_extra_1.default.writeFileSync(filepath, newContent);
+                    }
+                    return newContent;
                 }
             }
         },

@@ -1,5 +1,6 @@
 import type {PluginTransformOptions, PluginTransformResult, SnowpackConfig, SnowpackPlugin} from 'snowpack';
 import path from 'path';
+import fs from 'fs-extra';
 import minimatch from 'minimatch';
 
 type Filter = (transformOptions: PluginTransformOptions) => boolean;
@@ -7,6 +8,7 @@ type Filter = (transformOptions: PluginTransformOptions) => boolean;
 type HMRPrototypePluginOptions = {
   filter?: Filter;
   devOnly?: boolean;
+  writeToFolder?: string
 }
 
 export function filterFiles({includes, excludes}: {
@@ -64,7 +66,7 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
           if ((options as any).debug) {
             console.log(`injecting HMR code in ${id}`);
           }
-          return contents + `
+          const newContent = contents + `
 (async () => {
   if (import.meta.hot) {
     const previousModule = await import(import.meta.url);
@@ -97,6 +99,13 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
   }
 })();
 `;
+          if (options.writeToFolder) {
+            const relpath = path.relative(snowpackConfig.root, id);
+            const filepath = path.join(options.writeToFolder, relpath);
+            fs.ensureDirSync(path.dirname(filepath));
+            fs.writeFileSync(filepath, newContent);
+          }
+          return newContent;
         }      
       }
     },
