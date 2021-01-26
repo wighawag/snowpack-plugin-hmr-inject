@@ -1,5 +1,11 @@
 # snowpack-plugin-hmr-inject
 
+## 0.1.4
+
+### Patch Changes
+
+- fix issue with snowpack and import(import.meta.url)
+
 ## 0.1.3
 
 ### Patch Changes
