@@ -62,7 +62,8 @@ function default_1(snowpackConfig, options) {
                     const newContent = contents + `
 (async () => {
   if (import.meta.hot) {
-    const previousModule = await import(import.meta.url);
+    const moduleUrl = import.meta.url;
+    const previousModule = await import(moduleUrl);
     import.meta.hot.accept(({module}) => {
       for (const field of Object.keys(module)) {
         const newValue = module[field];
@@ -83,9 +84,12 @@ function default_1(snowpackConfig, options) {
           } else {
             const newPrototype = Reflect.getPrototypeOf(newValue);
             Reflect.setPrototypeOf(previousValue, newPrototype);
+
+            // TODO : test
+            previousModule[field] = previousValue;
           }
         } else {
-          previousModule[field] =  newValue;
+          previousModule[field] = newValue;
         }
       }
     });
