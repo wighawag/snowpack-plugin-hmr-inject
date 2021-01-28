@@ -89,11 +89,16 @@ export default function (snowpackConfig: SnowpackConfig, options: HMRPrototypePl
               import.meta.hot.invalidate();
             }
           } else {
-            const newPrototype = Reflect.getPrototypeOf(newValue);
-            Reflect.setPrototypeOf(previousValue, newPrototype);
-
-            // TODO : test
-            previousModule[field] = previousValue;
+            const clazz = previousValue.prototype?.constructor;
+            if (clazz && clazz.__instances) {
+              for (const instance of clazz.__instances) {
+                const classPrototype = newValue.prototype;
+                Reflect.setPrototypeOf(instance, classPrototype);
+              }
+            } else {
+              const newPrototype = Reflect.getPrototypeOf(newValue);
+              Reflect.setPrototypeOf(previousValue, newPrototype);
+            }
           }
         } else {
           previousModule[field] = newValue;
