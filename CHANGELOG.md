@@ -1,5 +1,11 @@
 # snowpack-plugin-hmr-inject
 
+## 0.1.5
+
+### Patch Changes
+
+- support class with \_\_instances static field
+
 ## 0.1.4
 
 ### Patch Changes
